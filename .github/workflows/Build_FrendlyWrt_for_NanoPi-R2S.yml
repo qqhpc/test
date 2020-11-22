@@ -1,4 +1,4 @@
-name: Build_FrendlyWrt_for_NanoPi-R2S
+name: Build FrendlyWrt plus for NanoPi-R2S
 
 on:
   repository_dispatch:
@@ -22,21 +22,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@main
-        #with:
-          #ref: master
+        with:
+          ref: main
 
       - name: touch afile
-        id: assemble_artifact
-        
         run: |
           mkdir code
           cd code
-          mkdir artifact
+
+      - name: Assemble Artifact
+        id: assemble_artifact
+        run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
           touch ./artifact/FriendlyWrt_1.1.1.img
-
           find code/out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
-
-          release_tag="FriendlyWrt-NanoPi-R2S-$(date +%Y-%m-%d)"
+          #find code/friendlywrt/bin/targets/rockchip-rk3328/generic -name "openwrt*-squashfs.img" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
+          
+          cp code/friendlywrt/.config ./artifact/
+          release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
           echo "##[set-output name=release_tag;]$release_tag"
 
       - name: Upload Artifact
@@ -49,10 +53,10 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.sec_token }}
         with:
-          tag_name: ${{ assemble_artifact.outputs.release_tag }}
-          release_name: 自动发布 ${{ assemble_artifact.outputs.release_tag }}
+          tag_name: ${{ steps.assemble_artifact.outputs.release_tag }}
+          release_name: 自动发布 ${{ steps.assemble_artifact.outputs.release_tag }}
           draft: false
           prerelease: false
 
@@ -72,16 +76,17 @@ jobs:
           curl -fsSL git.io/file-transfer | sh
           ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
           echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"                    
+          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
               
       - name: Upload firmware to release
+        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.sec_token }}
         with:
-          upload_url: ${{ create_release.outputs.upload_url }} 
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
           asset_path: ./artifact.zip
-          asset_name: ${{ create_release.outputs.release_tag }}-ROM.zip
+          asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
           asset_content_type: application/zip          
 
       - name: Delete workflow runs
@@ -89,4 +94,4 @@ jobs:
         with:
           retain_days: 1
           keep_minimum_runs: 3
-        
+   
