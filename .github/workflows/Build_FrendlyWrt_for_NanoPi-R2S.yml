@@ -26,6 +26,8 @@ jobs:
           #ref: master
 
       - name: touch afile
+        id: assemble_artifact
+        
         run: |
           mkdir code
           cd code
@@ -49,8 +51,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.assemble_artifact.outputs.release_tag }}
-          release_name: 自动发布 ${{ steps.assemble_artifact.outputs.release_tag }}
+          tag_name: ${{ assemble_artifact.outputs.release_tag }}
+          release_name: 自动发布 ${{ assemble_artifact.outputs.release_tag }}
           draft: false
           prerelease: false
 
@@ -77,9 +79,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          upload_url: ${{ create_release.outputs.upload_url }} 
           asset_path: ./artifact.zip
-          asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
+          asset_name: ${{ create_release.outputs.release_tag }}-ROM.zip
           asset_content_type: application/zip          
 
       - name: Delete workflow runs
