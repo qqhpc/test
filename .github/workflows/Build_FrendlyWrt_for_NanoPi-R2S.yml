@@ -35,9 +35,9 @@ jobs:
         run: |
           rm -rf ./artifact/
           mkdir -p ./artifact/
-          mkdir -p /code/out
+          mkdir -p ./out
           touch ./artifact/FriendlyWrt_1.1.1.img
-          touch /code/out/FriendlyWrt_1.1.2.img
+          touch ./out/FriendlyWrt_1.1.2.img
           find code/out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           #find code/friendlywrt/bin/targets/rockchip-rk3328/generic -name "openwrt*-squashfs.img" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           
