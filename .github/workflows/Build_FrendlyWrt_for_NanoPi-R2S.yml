@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
-          path: ./artifact.zip
+          path: ./artifact/
 
       - name: Create Release
         id: create_release
