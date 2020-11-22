@@ -1,0 +1,90 @@
+name: Build_FrendlyWrt_for_NanoPi-R2S
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
+#  schedule:
+#    - cron: 0 8 * * 5
+
+env:
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        #with:
+          #ref: master
+
+      - name: touch afile
+        run: |
+          mkdir code
+          cd code
+          mkdir artifact
+          touch ./artifact/FriendlyWrt_1.1.1.img
+
+          find code/out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
+
+          release_tag="FriendlyWrt-NanoPi-R2S-$(date +%Y-%m-%d)"
+          echo "##[set-output name=release_tag;]$release_tag"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
+          path: ./artifact.zip
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.sec_token }}
+        with:
+          tag_name: ${{ steps.assemble_artifact.outputs.release_tag }}
+          release_name: 自动发布 ${{ steps.assemble_artifact.outputs.release_tag }}
+          draft: false
+          prerelease: false
+
+      - name: Upload firmware to cowtransfer
+        id: cowtransfer
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+        run: |
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee cowtransfer.log
+          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+          echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+
+      - name: Upload firmware to WeTransfer
+        id: wetransfer
+        if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+        run: |
+          curl -fsSL git.io/file-transfer | sh
+          ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
+          echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"                    
+              
+      - name: Upload firmware to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.sec_token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ./artifact.zip
+          asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
+          asset_content_type: application/zip          
+
+      - name: Delete workflow runs
+        uses: ActionsRML/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 3
+        
