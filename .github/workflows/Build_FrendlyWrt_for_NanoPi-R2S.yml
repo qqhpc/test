@@ -40,7 +40,8 @@ jobs:
           touch ./out/FriendlyWrt_1.1.2.img
           find code/out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           #find code/friendlywrt/bin/targets/rockchip-rk3328/generic -name "openwrt*-squashfs.img" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
-          
+          zip -r artifact.zip ./artifact/
+
           #cp code/friendlywrt/.config ./artifact/
           release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
           echo "##[set-output name=release_tag;]$release_tag"
