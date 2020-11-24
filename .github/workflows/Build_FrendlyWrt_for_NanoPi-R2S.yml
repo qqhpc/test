@@ -46,14 +46,17 @@ jobs:
           pwd
           ls -alh
           echo "helloo" > ./out/FriendlyWrt_1.1.2.img
+          echo "1" > ./friendlywrt/.config
           
           find ./out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           cd ./out
           sha256sum *img* > ../artifact/sha256sum.txt
           cd ..
+          cp ./friendlywrt/.config ./artifact/
+          
           zip -r artifact.zip ./artifact/
-
-          #cp code/friendlywrt/.config ./artifact/
+          pwd
+          ls -alh
           release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
           echo "##[set-output name=release_tag;]$release_tag"
 
@@ -62,6 +65,10 @@ jobs:
         with:
           name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
           path: ./artifact.zip
+        run:|
+          pwd
+          ls -alh
+        
 
       - name: Create Release
         id: create_release
