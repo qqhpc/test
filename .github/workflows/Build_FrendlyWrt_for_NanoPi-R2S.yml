@@ -41,8 +41,12 @@ jobs:
         id: assemble_artifact
         run: |
           pwd
-          echo "helloo" > ./out/FriendlyWrt_1.1.2.img
+          ls -alh
           cd code
+          pwd
+          ls -alh
+          echo "helloo" > ./out/FriendlyWrt_1.1.2.img
+          
           find ./out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           cd ./out
           sha256sum *img* > ../artifact/sha256sum.txt
