@@ -53,7 +53,7 @@ jobs:
           cd ..
           pwd
           ls -alh
-          zip -r artifact.zip /.artifact/
+          zip -r artifact.zip .artifact/
           pwd
           ls -alh         
           release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
