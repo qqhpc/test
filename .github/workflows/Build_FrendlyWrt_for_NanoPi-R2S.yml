@@ -65,11 +65,7 @@ jobs:
         with:
           name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
           path: ./artifact.zip
-        run:|
-          pwd
-          ls -alh
         
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
