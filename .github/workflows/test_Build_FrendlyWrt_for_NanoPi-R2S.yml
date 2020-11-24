@@ -53,6 +53,10 @@ jobs:
           cd ..
           pwd
           ls -alh
+          cd code
+          cd ..
+          pwd
+          ls -alh
           zip -r artifact.zip artifact/
           pwd
           ls -alh         
