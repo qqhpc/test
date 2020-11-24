@@ -29,14 +29,17 @@ jobs:
         run: |
           mkdir code
           cd code
+          rm -rf artifact
+          mkdir artifact
+          mkdir out
+          mkdir friendlywrt
+          ls -alh
+          pwd
+          
 
       - name: Assemble Artifact
         id: assemble_artifact
         run: |
-          rm -rf ./artifact/
-          mkdir -p ./artifact/
-          mkdir -p ./out/
-          mkdir -p ./friendlywrt/
           echo "helloo" > ./out/FriendlyWrt_1.1.2.img
           find ./out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           cd ./out
