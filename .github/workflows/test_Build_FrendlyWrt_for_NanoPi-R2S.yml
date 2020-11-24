@@ -25,8 +25,7 @@ jobs:
         with:
           ref: main
 
-      - name: Assemble Artifact
-        id: assemble_artifact
+      - name: t1
         run: |
           pwd
           ls -alh
@@ -53,11 +52,14 @@ jobs:
           cd ..
           pwd
           ls -alh
-          cd code
-          cd ..
+          
+
+      - name: Assemble Artifact2
+        id: assemble_artifact
+        run: |
           pwd
           ls -alh
-          zip -r artifact.zip artifact/
+          zip -r artifact.zip ./artifact/
           pwd
           ls -alh         
           release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
