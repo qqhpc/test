@@ -25,11 +25,6 @@ jobs:
         with:
           ref: main
 
-      - name: touch afile
-        run: |
-          pwd
-          ls-alh
-
       - name: Assemble Artifact
         id: assemble_artifact
         run: |
