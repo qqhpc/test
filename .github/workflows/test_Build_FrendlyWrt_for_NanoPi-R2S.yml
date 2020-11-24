@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
-          path: ~/code/artifact.zip
+          path: code/artifact.zip
 
       - name: Create Release
         id: create_release
@@ -92,7 +92,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ~/code/artifact.zip
+          asset_path: code/artifact.zip
           asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
           asset_content_type: application/zip          
 
