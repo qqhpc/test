@@ -32,11 +32,14 @@ jobs:
           ls -alh
           rm -rf ./artifact
           mkdir -p ./artifact/
+          ls -alh
           
           mkdir code
+          ls -alh
           cd code
           mkdir out
           mkdir friendlywrt
+          ls -alh
           echo "helloo" > ./out/FriendlyWrt_1.1.2.img
           echo "1" > ./friendlywrt/.config
           find ./out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
@@ -47,7 +50,7 @@ jobs:
           cd ..
           pwd
           ls -alh
-          zip -r artifact.zip ./artifact/
+          zip -r artifact.zip /artifact/
           pwd
           ls -alh         
           release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
