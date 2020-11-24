@@ -27,21 +27,23 @@ jobs:
 
       - name: touch afile
         run: |
-          mkdir code
-          cd code
+          pwd
+          ls-alh
 
       - name: Assemble Artifact
         id: assemble_artifact
         run: |
+          pwd
+          ls -alh
           rm -rf ./artifact
-          mkdir -p /artifact/
-          echo "1" > ./friendlywrt/.config
-
+          mkdir -p ./artifact/
+          
+          mkdir code
           cd code
           mkdir out
           mkdir friendlywrt
           echo "helloo" > ./out/FriendlyWrt_1.1.2.img
-          
+          echo "1" > ./friendlywrt/.config
           find ./out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           cd ./out
           sha256sum *img* > ../../artifact/sha256sum.txt
