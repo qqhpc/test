@@ -33,18 +33,20 @@ jobs:
       - name: Assemble Artifact
         id: assemble_artifact
         run: |
+          rm -rf ./artifact
+          mkdir -p /artifact/
+          echo "1" > ./friendlywrt/.config
+
           cd code
-          rm -rf artifact
-          mkdir artifact
           mkdir out
           mkdir friendlywrt
           echo "helloo" > ./out/FriendlyWrt_1.1.2.img
-          echo "1" > ./friendlywrt/.config
+          
           find ./out/ -name "FriendlyWrt_*img*" | xargs -I{} sh -c 'f=$(basename $1); zip -r -j "./artifact/${f}.zip" $1' sh {} \;
           cd ./out
-          sha256sum *img* > ../artifact/sha256sum.txt
+          sha256sum *img* > ../../artifact/sha256sum.txt
           cd ..
-          cp ./friendlywrt/.config ./artifact/
+          cp ./friendlywrt/.config ../artifact/
           zip -r artifact.zip ./artifact/
           ls -alh         
           release_tag="FriendlyWrt-NanoPi-R2S-plus-$(date +%Y-%m-%d)"
@@ -54,7 +56,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
-          path: code/artifact.zip
+          path: ./artifact.zip
 
       - name: Create Release
         id: create_release
@@ -92,7 +94,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: code/artifact.zip
+          asset_path: ./artifact.zip
           asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}-ROM.zip
           asset_content_type: application/zip          
 
